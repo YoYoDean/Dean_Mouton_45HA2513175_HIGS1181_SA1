@@ -1,12 +1,7 @@
-
 using System;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
-/// <summary>
-/// Basic Enemy AI for a turn-based game.
-/// Currently moves randomly. Students must modify this
-/// script so the enemy moves toward the player.
-/// </summary>
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyAI : MonoBehaviour
 {
@@ -14,71 +9,96 @@ public class EnemyAI : MonoBehaviour
     [Tooltip("Time (in seconds) it takes to move one tile.")]
     public float moveTime = 0.2f;
 
+    [Header("Tilemap Settings")]
+    public Tilemap obstacleTilemap;
+
     private Rigidbody2D rb2D;
     private float inverseMoveTime;
-    private Vector2 targetPosition;
+    private Vector3 targetPosition;
     public bool gameOver;
 
     private void Awake()
     {
-        // Cache the Rigidbody2D component
-
         rb2D = GetComponent<Rigidbody2D>();
         UIManager uIManager = GameObject.FindWithTag("UiManager").GetComponent<UIManager>();
     }
 
     private void Start()
     {
-        // Calculate movement speed factor
         inverseMoveTime = 1f / moveTime;
-
-        // Enemy starts at its current position
         targetPosition = rb2D.position;
-
     }
 
-    /// <summary>
-    /// Called by the GameManager when it's the enemy's turn.
-    /// </summary>
     public void TakeTurn()
     {
-        Vector2 playerPos = GameObject.FindWithTag("Player").transform.position;
-        targetPosition = playerPos - rb2D.position;
+        Vector3 playerPos = GameObject.FindWithTag("Player").transform.position;
+        targetPosition = playerPos - rb2D.transform.position;
         Debug.Log(targetPosition);
+
+        Vector3 moveDir = Vector3.zero;
 
         if (Math.Abs(targetPosition.x) > Math.Abs(targetPosition.y))
         {
-            if (targetPosition.x > 0)
-            {
-                rb2D.MovePosition(rb2D.position + Vector2.right);
-            }
-            else if (targetPosition.x < 0)
-            {
-                rb2D.MovePosition(rb2D.position + Vector2.left);
-            }
+            moveDir = targetPosition.x > 0 ? Vector3.right : Vector3.left;
         }
         else
         {
-            if (targetPosition.y < 0)
-            {
-                rb2D.MovePosition(rb2D.position + Vector2.down);
-            }
-            else if (targetPosition.y > 0)
-            {
-                rb2D.MovePosition(rb2D.position + Vector2.up);
-            }
+            moveDir = targetPosition.y > 0 ? Vector3.up : Vector3.down;
         }
 
-        Debug.Log("Enemy moved.");
+        
+
+
+        if (moveDir != Vector3.zero)
+        {
+            Vector3 nextPos = rb2D.transform.position + moveDir;
+            // Check obstacle before moving
+            Debug.Log("nextpos: "  + nextPos);
+            if (CanMoveTo(nextPos))
+            {
+                rb2D.MovePosition(nextPos);
+                Debug.Log("Enemy moved.");
+            }
+            else
+            {
+                Debug.Log("Enemy blocked!");
+
+                if (Math.Abs(targetPosition.x) > Math.Abs(targetPosition.y))
+                {
+                    moveDir = targetPosition.y > 0 ? Vector3.up : Vector3.down;
+                    nextPos = rb2D.transform.position + moveDir;
+                    rb2D.MovePosition(nextPos);
+                    Debug.Log("Enemy moved.");
+                }
+                else
+                {
+                    moveDir = targetPosition.x > 0 ? Vector3.right : Vector3.left;
+                    nextPos = rb2D.transform.position + moveDir;
+                    rb2D.MovePosition(nextPos);
+                    Debug.Log("Enemy moved.");
+                }
+                
+            }
+        }
+    }
+
+    private bool CanMoveTo(Vector3 targetWorldPos)
+    {
+        if (obstacleTilemap == null) return true;
+
+        Vector3Int cellPos = obstacleTilemap.WorldToCell(targetWorldPos);
+        TileBase tile = obstacleTilemap.GetTile(cellPos);
+        return tile == null;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            gameOver= true;
+            gameOver = true;
         }
     }
+}
 
     // ---------------------------------------------------
     // TODO: MODIFY THIS SCRIPT
@@ -92,4 +112,3 @@ public class EnemyAI : MonoBehaviour
     // Vector2 playerPos = GameObject.FindWithTag("Player").transform.position;
     // Decide whether to move horizontally or vertically toward player
     // ---------------------------------------------------
-}
