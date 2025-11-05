@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -20,7 +21,8 @@ public class EnemyAI : MonoBehaviour
     private void Awake()
     {
         // Cache the Rigidbody2D component
-       // rb2D = GetComponent());
+    
+        rb2D = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
@@ -30,6 +32,7 @@ public class EnemyAI : MonoBehaviour
 
         // Enemy starts at its current position
         targetPosition = rb2D.position;
+
     }
 
     /// <summary>
@@ -37,15 +40,34 @@ public class EnemyAI : MonoBehaviour
     /// </summary>
     public void TakeTurn()
     {
-        // --- CURRENT LOGIC: Moves randomly one tile ---
-        Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
-        Vector2 randomDir = directions[Random.Range(0, directions.Length)];
-        targetPosition = rb2D.position + randomDir;
+        Vector2 playerPos = GameObject.FindWithTag("Player").transform.position;
+        targetPosition = playerPos - rb2D.position;
+        Debug.Log(targetPosition);
 
-        // Instantly move enemy to the new position (grid-based movement)
-        rb2D.MovePosition(targetPosition);
-
-        Debug.Log("Enemy moved randomly.");
+        if (Math.Abs(targetPosition.x) > Math.Abs(targetPosition.y))
+        {
+            if (targetPosition.x > 0)
+            {
+                rb2D.MovePosition(rb2D.position + Vector2.right);
+            }
+            else if (targetPosition.x < 0)
+            {
+                rb2D.MovePosition(rb2D.position + Vector2.left);
+            }
+        }
+        else
+        {
+            if (targetPosition.y < 0)
+            {
+                rb2D.MovePosition(rb2D.position + Vector2.down);
+            }
+            else if (targetPosition.y > 0)
+            {
+                rb2D.MovePosition(rb2D.position + Vector2.up);
+            }
+        }
+        
+        Debug.Log("Enemy moved.");
     }
 
     // ---------------------------------------------------
