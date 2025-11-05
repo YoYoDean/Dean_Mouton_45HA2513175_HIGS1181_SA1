@@ -17,12 +17,14 @@ public class EnemyAI : MonoBehaviour
     private Rigidbody2D rb2D;
     private float inverseMoveTime;
     private Vector2 targetPosition;
+    public bool gameOver;
 
     private void Awake()
     {
         // Cache the Rigidbody2D component
-    
+
         rb2D = GetComponent<Rigidbody2D>();
+        UIManager uIManager = GameObject.FindWithTag("UiManager").GetComponent<UIManager>();
     }
 
     private void Start()
@@ -66,8 +68,16 @@ public class EnemyAI : MonoBehaviour
                 rb2D.MovePosition(rb2D.position + Vector2.up);
             }
         }
-        
+
         Debug.Log("Enemy moved.");
+    }
+
+    void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            gameOver= true;
+        }
     }
 
     // ---------------------------------------------------

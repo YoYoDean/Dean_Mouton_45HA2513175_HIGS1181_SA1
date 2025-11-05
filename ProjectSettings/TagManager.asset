@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Enemy
+  - Goal
+  - UiManager
+  - GameManager
   layers:
   - Default
   - TransparentFX
@@ -50,6 +53,9 @@ TagManager:
     locked: 0
   - name: Enemy
     uniqueID: 3198127871
+    locked: 0
+  - name: Goal
+    uniqueID: 850145531
     locked: 0
   m_RenderingLayers:
   - Default
