@@ -9,12 +9,15 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+
+    //declaring variables
+
     private const int V = 1;
     int counter = 0;
     private PlayerMove playerMove;
     private EnemyAI enemyAI;
     private UIManager uIManager;
-    private bool endTurn = false;
+   // private bool endTurn = false;
 
     
 
@@ -22,9 +25,9 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         playerMove = GameObject.FindWithTag("Player").GetComponent<PlayerMove>();
-        enemyAI = GameObject.FindWithTag("Enemy").GetComponent<EnemyAI>();
+        enemyAI = GameObject.FindWithTag("Enemy").GetComponent<EnemyAI>();              //getting access to scripts
         uIManager = GameObject.FindWithTag("UiManager").GetComponent<UIManager>();
-        Time.timeScale = V;
+        Time.timeScale = V; // setting time to run
 
         
     }
@@ -34,33 +37,33 @@ public class GameManager : MonoBehaviour
     {
 
 
-
+            // checking which key is pressed and if its players turn
         if (counter == 0 && (Keyboard.current.aKey.wasPressedThisFrame || Keyboard.current.dKey.wasPressedThisFrame || Keyboard.current.sKey.wasPressedThisFrame || Keyboard.current.wKey.wasPressedThisFrame))
         {
-            endTurn = false;
-            counter = 1;
-            playerMove.MovePlayer();
+            //endTurn = false;        //turn done
+            counter = 1;            //counter to help keep track of turn
+            playerMove.MovePlayer();        //calling moveplayer method that moves player
             Debug.Log("Enemy Turn ");
-            StartCoroutine(TurnDelay(.5f));
-            uIManager.whoTurn = "Enemy's Turn, Press space to end turn";
+            StartCoroutine(TurnDelay(.5f));         //turn delay
+            uIManager.whoTurn = "Enemy's Turn, Press space to end turn"; //display its now enemy's turn
         }
 
-        if (counter == 1 && Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (counter == 1 && Keyboard.current.spaceKey.wasPressedThisFrame) //checking if its enemy turn and if player done
         {
-            endTurn = false;
+            //endTurn = false;
             counter = 0;
-            enemyAI.TakeTurn();
+            enemyAI.TakeTurn(); // caling enemy move method      ,,,,,,, Rest same as above
             Debug.Log("Player Turn ");
             uIManager.whoTurn = "Player's Turn (W,A,S,D)";
             StartCoroutine(TurnDelay(.5f));
         }
 
-        if (uIManager.boolgameOver || uIManager.boolwinGame)
+        if (uIManager.boolgameOver || uIManager.boolwinGame)        //checking win or lose conditions
         {
             Time.timeScale = V;
             if (Keyboard.current.rKey.isPressed)
             {
-                SceneManager.LoadScene("SampleScene");
+                SceneManager.LoadScene("SampleScene");// reload scene if R is pressed
             }
         }
 
@@ -72,8 +75,8 @@ public class GameManager : MonoBehaviour
     
     IEnumerator TurnDelay(float delay)
     {
-        yield return new WaitForSeconds(delay);
-        endTurn = true;
+        yield return new WaitForSeconds(delay); //waiting after turns
+       // endTurn = true;
 
     }
 }
